@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interactive Coursebook – Theme 5</title>
+<style>
+:root{--bg:#f6f4ef;--card:#fff;--tx:#222;--mu:#667;--ac:#1f7a6d;--ok:#1b8a3a;--no:#c0392b;--bd:#ddd8cc;--pa:#eee3d6}
+@media(prefers-color-scheme:dark){:root{--bg:#1b1d1f;--card:#26292c;--tx:#eee;--mu:#9aa;--ac:#4fc3b0;--ok:#5fd17f;--no:#ff7a6b;--bd:#3a3f43;--pa:#33302b}}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--tx);line-height:1.5}
+header{background:var(--ac);color:#fff;padding:14px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+header h1{font-size:1.1rem;margin:0}
+nav{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:6px 12px}
+button.tab.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+button.main{background:var(--ac);color:#fff;border-color:var(--ac)}
+button.ans{font-size:.85rem;color:var(--mu)}
+main{max-width:860px;margin:0 auto;padding:0 16px 40px}
+.task{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;margin:14px 0}
+.task h3{margin:0 0 8px;font-size:1rem}
+.task h3 b{background:var(--ac);color:#fff;border-radius:6px;padding:0 8px;margin-right:6px}
+.pass{background:var(--pa);border-radius:10px;padding:10px 14px;font-size:.95rem}
+.pass p{margin:6px 0}
+.item{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+.item .q{flex:1 1 100%}
+input[type=text]{flex:1 1 220px;padding:7px 10px;border:1px solid var(--bd);border-radius:8px;font:inherit;background:var(--bg);color:var(--tx)}
+select{padding:6px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit}
+.fb{font-size:.9rem;min-width:100px}
+.fb.ok{color:var(--ok)}.fb.no{color:var(--no)}
+.rev{display:none;flex:1 1 100%;background:var(--pa);border-left:4px solid var(--ac);padding:6px 10px;border-radius:6px;font-size:.9rem}
+.rev.show{display:block}
+.note{color:var(--mu);font-size:.85rem}
+.photos{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0}
+.photos div{background:var(--pa);border-radius:10px;text-align:center;padding:10px 4px;font-size:.8rem}
+.photos span{font-size:2rem;display:block}
+.photos img{width:100%;height:110px;object-fit:cover;border-radius:8px;display:block;margin-bottom:4px}
+label.opt{display:block;margin:4px 0}
+video{width:100%;max-height:340px;border-radius:10px;background:#000;margin-top:8px}
+a{color:var(--ac)}
+</style>
+</head>
+<body>
+<header>
+  <h1>📘 Theme 5: Life in the House and Neighborhood</h1>
+  <button id="lockBtn" onclick="toggleLock()">🔒 Öğretmen modu</button>
+</header>
+<nav id="tabs"></nav>
+<main id="app"></main>
+
+<script>
+/* ====== AYARLAR ====== */
+const TEACHER_CODE = "ELT2026";   // ← öğretmen kodunu buradan değiştir
+const DRIVE_LINK   = "https://drive.google.com/"; // ← Drive video linkini buraya yapıştır
+const USB_FILE     = "videos/digital-story-5.mp4"; // ← İnternet yoksa: USB'deki dosya yolu
+
+/* ====== İÇERİK ====== */
+const PAGES = [
+{ title:"Language Awareness", tasks:[
+ {k:"match", l:"a", t:"Read the text quickly to match the paragraphs to the photos.",
+  photos:["🏙️ City buildings","📖 Woman reading","🛋️ Living room","🌃 Skyscrapers at night"],
+  opts:["A","B","C","D"], ans:["B","D","C","A"]},
+ {k:"text", title:"Home Sweet Home", paras:[
+  "<b>A</b> As the population increases, living space gets smaller, particularly in crowded areas. People's habits and social lives are changing according to <b>their</b> living environments, as compared to previous decades. Keeping up with the busy rhythm of modern city life can be challenging at times. My name is Keyla, and I am working as an artist in Manhattan, New York.",
+  "<b>B</b> We moved into this city three years ago primarily for the children's education. We rented an 80-square-metre penthouse with two spacious bedrooms, a small kitchen, and a cosy living room in a five-storey building. It is quite close to all the services we need, such as public transport and educational and recreational facilities in the city centre. <b>My</b> little girl, Joyce, is walking to <b>her</b> school for five minutes. It is a big advantage.",
+  "<b>C</b> <b>Our</b> furnished house reflects the spiritual, cultural, and family unity values. High ceilings, minimalist furniture, photo wall collages, and elegant furnishings are all important things for a house. They help create a comfortable living room for daily relaxation and quality time with loved ones.",
+  "<b>D</b> Spending time with family members at home and sitting at the dinner table every evening is perfect. At the moment, I am reading a book at a warm bergère by the window. It looks through the city's amazing, vivid view. My husband is preparing the table for dinner. The children are studying in <b>their</b> room right now."]},
+ {k:"fill", l:"b", t:"Read the text again to find what the words below refer to.", items:[
+  {q:"1  In Paragraph A their:", ok:["people's","people"], ans:"people's"},
+  {q:"2  In Paragraph B my:", ok:["Keyla's","Keyla"], ans:"Keyla's"},
+  {q:"3  In Paragraph B her:", ok:["Joyce's","Joyce","Keyla's little girl's","Keyla's little girl"], ans:"Joyce's (Keyla's little girl's)"},
+  {q:"4  In Paragraph C our:", ok:["Keyla and her family's","Keyla's family's","Keyla's family","Keyla and her family","the family's"], ans:"Keyla and her family's"},
+  {q:"5  In Paragraph D their:", ok:["the children's","children's","the children"], ans:"the children's"}]},
+ {k:"open", l:"c", t:"Work in pairs. Ask and answer questions about the text, using possessive adjectives as in the example.", ex:"e.g. What is Keyla's little girl's name? → Her name is Joyce."},
+ {k:"fill", l:"d", t:"Work in pairs. Think of the answers to the questions. Ask and answer them.", sent:true, items:[
+  {q:"1  What does Keyla do?", kw:[["artist"]], ans:"She is an artist (in Manhattan, New York)."},
+  {q:"2  What kind of house does she live in?", kw:[["penthouse","apartment","flat","building"]], ans:"She lives in an 80-square-metre penthouse in a five-storey building."},
+  {q:"3  What values does her house reflect?", kw:[["spiritual","cultural","family","unity"]], ans:"It reflects spiritual, cultural and family unity values."},
+  {q:"4  What do you think is important for a house?", open:true, ans:"Open answer – e.g. I think a safe and comfortable living room is important."}]},
+ {k:"open", l:"e–f", t:"Work in groups. Read and examine the sentences below. Find and underline the sentences in the text as in Exercise e.", ex:"e.g. I am listening to the teacher attentively. / She is making dinner in the kitchen now.", ans:"Examples from the text: 'I am working as an artist…' (A), 'My little girl, Joyce, is walking to her school…' (B), 'I am reading a book…' (D), 'My husband is preparing the table…' (D), 'The children are studying in their room right now.' (D)"},
+ {k:"video", l:"g", t:"Watch Digital Story 5 and take notes of the sentences similar to those in Exercises e and f."},
+ {k:"open", l:"h–i", t:"h) Work in groups. Discuss the common points of the sentences you have studied. i) Look at the photos on Pages 80–81 and make sentences with them, using the Present Progressive Tense.", ans:"Common point: they all use am/is/are + verb-ing to talk about actions happening now (Present Progressive)."}
+]},
+{ title:"Roots and Routes (p. 90)", tasks:[
+ {k:"text", title:"Zero-Energy Buildings", paras:[
+  "In modern life, people spend most of their time inside buildings. They live, work, study, shop, and socialise indoors. As a result, buildings use a lot of energy for heating, cooling, lighting, and powering electronic devices. However, the world is facing serious problems like climate change and high energy costs. Using too much energy harms the environment and increases cost. To solve this problem, many countries, including Türkiye, are looking for better and more eco-friendly solutions.",
+  "One smart idea is the use of zero-energy buildings. These buildings use very little energy and also produce their own power from clean sources, such as sunlight and wind. They often have solar panels on the roof to make the energy they need. In addition, smart windows help control sunlight to keep the building cool or warm and save energy. Most of the time, they do not need extra power from the national grid. When the weather is not good and the building cannot make enough energy, it takes power from the grid. Once the sun shines or wind blows again, the renewable systems start working to power the building. Zero-energy buildings are also built with special materials that save energy. These materials keep the heat inside in winter and outside in summer. This makes the building more comfortable and energy-efficient all year.",
+  "Türkiye supports these buildings as part of its 2053 climate goals. New public and private buildings, especially large ones like schools, offices, and hospitals, need to meet zero-energy standards. These buildings must get at least 10% of their energy from renewable sources. The main aim is to use energy more wisely and protect the environment. Zero-energy buildings help save natural resources and energy for future generations."]},
+ {k:"choice", l:"a", t:"Read the text quickly and circle the best title.", opts:["Climate Change: A Growing Global Problem","Solar Panels: A Popular Way to Power Electronic Devices","Zero-Energy Buildings: A Smart Solution for the Future","How to Decorate Buildings: Creative Interior Ideas"], ans:2},
+ {k:"multi", l:"b", t:"Read the text quickly and circle the topics that are mentioned.", opts:["climate change","solar panels","water pollution","smart windows","renewable sources","artificial intelligence"], ans:[0,1,3,4]},
+ {k:"fill", l:"c", t:"Read the text carefully and answer the questions.", sent:true, items:[
+  {q:"1  Why do buildings use so much energy in modern life?", kw:[["energy","heating","cooling","lighting","electronic","devices","live","work","study","indoors","spend"]], ans:"Because people spend most of their time inside buildings, and buildings use energy for heating, cooling, lighting and powering electronic devices."},
+  {q:"2  How do zero-energy buildings produce their own energy?", kw:[["solar","sun","sunlight","wind","renewable","clean"]], ans:"They produce power from clean sources such as sunlight and wind, often with solar panels on the roof."},
+  {q:"3  What is the main purpose of zero-energy buildings?", kw:[["energy","environment","wisely","resources","protect","save"]], ans:"To use energy more wisely and protect the environment."}]},
+ {k:"multi", l:"d", t:"Tick (✓) the sentences that you can infer from the text.", opts:["Zero-energy buildings are only useful in warm countries.","People can save money with zero-energy buildings in the long term.","Zero-energy buildings are helpful in the fight against climate change.","All buildings in Türkiye meet zero-energy standards."], ans:[1,2]},
+ {k:"open", l:"e", t:"Work in pairs to find and discuss other solutions for saving energy at home. Then share your ideas with the class.", ans:"Open answer – e.g. turn off lights, use LED bulbs, unplug devices, insulate windows, use less hot water."}
+]}
+];
+
+/* ====== MOTOR ====== */
+let unlocked=false, cur=0;
+const $=s=>document.querySelector(s);
+const norm=s=>s.toLowerCase().replace(/[’‘`]/g,"'").replace(/[^a-z0-9' ]/g,"").replace(/'/g,"").replace(/\s+/g," ").trim();
+
+function toggleLock(){
+  if(unlocked){unlocked=false;}
+  else{
+    const c=prompt("Öğretmen kodunu girin:");
+    if(c===null)return;
+    if(c===TEACHER_CODE)unlocked=true; else{alert("Kod yanlış.");return;}
+  }
+  refresh();
+}
+function refresh(){
+  $("#lockBtn").textContent=unlocked?"🔓 Öğretmen modu açık (kapat)":"🔒 Öğretmen modu";
+  document.querySelectorAll(".rev").forEach(r=>r.classList.toggle("show",unlocked));
+  document.querySelectorAll("button.ans").forEach(b=>b.style.display=unlocked?"none":"");
+}
+function reveal(){ if(!unlocked)toggleLock(); }
+
+function ansBtn(txt){return `<button class="ans" onclick="reveal()">🔑 Cevap</button><div class="rev"><b>Cevap:</b> ${txt}</div>`}
+function fb(el,ok,msg){el.className="fb "+(ok?"ok":"no");el.textContent=msg}
+
+function render(){
+  $("#tabs").innerHTML=PAGES.map((p,i)=>`<button class="tab ${i==cur?'on':''}" onclick="cur=${i};render()">${p.title}</button>`).join("");
+  $("#app").innerHTML=PAGES[cur].tasks.map((t,ti)=>{
+    const head=t.l?`<h3><b>${t.l}</b>${t.t}</h3>`:"";
+    if(t.k=="text")return `<div class="task"><h3>${t.title}</h3><div class="pass">${t.paras.map(p=>`<p>${p}</p>`).join("")}</div></div>`;
+    if(t.k=="open")return `<div class="task" data-i="${ti}">${head}${t.ex?`<p class="note">${t.ex}</p>`:""}<p class="note">Sınıfta konuşarak yapılır.</p>${t.ans?ansBtn(t.ans):""}</div>`;
+    if(t.k=="video")return `<div class="task">${head}
+      <p>🌐 İnternet varsa: <a href="${DRIVE_LINK}" target="_blank" rel="noopener">Digital Story 5 (Drive)</a></p>
+      <p>💾 İnternet yoksa: USB'deki <code>${USB_FILE}</code> dosyasını açın.</p>
+      <video controls src="${USB_FILE}"></video>
+      <p class="note">Video dosyası index.html ile aynı klasörde "videos" içindeyse burada oynar.</p></div>`;
+    if(t.k=="match")return `<div class="task">${head}<div class="photos">${t.photos.map((p,i)=>`<div><img src="images/photo${i+1}.jpg" alt="Photo ${i+1}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span style="display:none">${p.split(" ")[0]}</span>Photo ${i+1}</div>`).join("")}</div>
+      <div class="item">${t.photos.map((_,i)=>`Photo ${i+1}: <select id="m${i}"><option value="">–</option>${t.opts.map(o=>`<option>${o}</option>`).join("")}</select>`).join(" ")}
+      <button class="main" onclick="chkMatch(${ti})">Kontrol et</button><span class="fb" id="mfb"></span>${ansBtn(t.ans.map((a,i)=>`Photo ${i+1} → ${a}`).join(", "))}</div></div>`;
+    if(t.k=="choice")return `<div class="task">${head}${t.opts.map((o,i)=>`<label class="opt"><input type="radio" name="c${ti}" value="${i}"> ${i+1} ${o}</label>`).join("")}
+      <div class="item"><button class="main" onclick="chkChoice(${ti})">Kontrol et</button><span class="fb" id="cfb${ti}"></span>${ansBtn(`${t.ans+1} – ${t.opts[t.ans]}`)}</div></div>`;
+    if(t.k=="multi")return `<div class="task">${head}${t.opts.map((o,i)=>`<label class="opt"><input type="checkbox" name="x${ti}" value="${i}"> ${i+1} ${o}</label>`).join("")}
+      <div class="item"><button class="main" onclick="chkMulti(${ti})">Kontrol et</button><span class="fb" id="xfb${ti}"></span>${ansBtn(t.ans.map(i=>`${i+1} (${t.opts[i]})`).join(", "))}</div></div>`;
+    if(t.k=="fill")return `<div class="task">${head}${t.items.map((it,ii)=>`<div class="item"><div class="q">${it.q}</div>
+      <input type="text" id="f${ti}_${ii}" placeholder="Cevabını yaz…" onkeydown="if(event.key=='Enter')chkFill(${ti},${ii})">
+      <button class="main" onclick="chkFill(${ti},${ii})">Kontrol et</button><span class="fb" id="ffb${ti}_${ii}"></span>${ansBtn(it.ans)}</div>`).join("")}</div>`;
+  }).join("");
+  refresh();
+}
+
+function chkFill(ti,ii){
+  const t=PAGES[cur].tasks[ti], it=t.items[ii];
+  const v=$(`#f${ti}_${ii}`).value.trim(), o=$(`#ffb${ti}_${ii}`);
+  if(!v)return fb(o,false,"✏️ Önce bir cevap yaz.");
+  if(it.open){return fb(o,true,"💬 Açık uçlu soru, öğretmen değerlendirir.");}
+  if(it.ok){
+    const ok=it.ok.some(a=>norm(a)==norm(v));
+    return fb(o,ok,ok?"✅ Doğru!":"❌ Tekrar dene.");
+  }
+  // cümle kontrolü
+  const tips=[];
+  if(!/^[A-Z]/.test(v))tips.push("Cümle büyük harfle başlamalı.");
+  if(!/[.!?]$/.test(v))tips.push("Cümle noktayla bitmeli.");
+  if(v.split(/\s+/).length<3)tips.push("Tam cümle yaz (özne + fiil + tamamlayıcı).");
+  const n=norm(v), hit=it.kw.every(g=>g.some(w=>n.includes(w)));
+  if(!hit)return fb(o,false,"❌ Cevap metindeki bilgiyle uyuşmuyor. "+tips.join(" "));
+  if(tips.length)return fb(o,false,"⚠️ İçerik doğru, ama: "+tips.join(" "));
+  fb(o,true,"✅ Doğru ve cümle yapısı iyi!");
+}
+function chkMatch(ti){
+  const t=PAGES[cur].tasks[ti];
+  const v=t.ans.map((_,i)=>$("#m"+i).value);
+  if(v.includes(""))return fb($("#mfb"),false,"Hepsini seç.");
+  const n=v.filter((x,i)=>x==t.ans[i]).length;
+  fb($("#mfb"),n==4,n==4?"✅ Hepsi doğru!":`❌ ${n}/4 doğru.`);
+}
+function chkChoice(ti){
+  const t=PAGES[cur].tasks[ti], r=document.querySelector(`input[name=c${ti}]:checked`), o=$("#cfb"+ti);
+  if(!r)return fb(o,false,"Bir seçenek seç.");
+  const ok=+r.value==t.ans; fb(o,ok,ok?"✅ Doğru!":"❌ Tekrar dene.");
+}
+function chkMulti(ti){
+  const t=PAGES[cur].tasks[ti], o=$("#xfb"+ti);
+  const s=[...document.querySelectorAll(`input[name=x${ti}]:checked`)].map(e=>+e.value).sort();
+  if(!s.length)return fb(o,false,"En az bir seçenek işaretle.");
+  const right=s.filter(i=>t.ans.includes(i)).length, wrong=s.length-right;
+  const ok=wrong==0&&right==t.ans.length;
+  fb(o,ok,ok?"✅ Hepsi doğru!":`❌ ${right} doğru, ${wrong} yanlış${right<t.ans.length&&!wrong?", eksik var":""}.`);
+}
+render();
+</script>
+</body>
+</html>
